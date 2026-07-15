@@ -6,7 +6,7 @@ import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import contactRoutes from "./routes/contact.js";
 import ordersRoutes from "./routes/orders.js";
-import paymentRoutes, { isRazorpayConfigured } from "./routes/payment.js";
+import paymentRoutes, { isRazorpayReady } from "./routes/payment.js";
 import productsRoutes from "./routes/products.js";
 
 dotenv.config();
@@ -24,7 +24,7 @@ app.get("/api/health", async (req, res) => {
       message: "Dukan backend running",
       database: dbName,
       databaseType: "MySQL",
-      razorpayMode: isRazorpayConfigured ? "live/test key configured" : "demo mode",
+      razorpayMode: isRazorpayReady() ? "live/test key configured" : "not configured",
     });
   } catch (error) {
     res.status(500).json({ message: "MySQL not connected", error: error.message });

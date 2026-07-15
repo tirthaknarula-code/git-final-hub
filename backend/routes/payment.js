@@ -1,56 +1,63 @@
-﻿import express from "express";
+import express from "express";
 import Razorpay from "razorpay";
 
 const router = express.Router();
 
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "YOUR_RAZORPAY_KEY_ID";
-const razorpayKeySecret =
-  process.env.RAZORPAY_SECRET ||
-  process.env.RAZORPAY_KEY_SECRET ||
-  "YOUR_RAZORPAY_KEY_SECRET";
+function getRazorpayConfig() {
+  const keyId = process.env.RAZORPAY_KEY_ID || "YOUR_RAZORPAY_KEY_ID";
+  const keySecret =
+    process.env.RAZORPAY_SECRET ||
+    process.env.RAZORPAY_KEY_SECRET ||
+    "YOUR_RAZORPAY_KEY_SECRET";
 
-export const isRazorpayConfigured =
-  razorpayKeyId !== "YOUR_RAZORPAY_KEY_ID" &&
-  razorpayKeySecret !== "YOUR_RAZORPAY_KEY_SECRET";
+  return {
+    keyId,
+    keySecret,
+    configured:
+      keyId !== "YOUR_RAZORPAY_KEY_ID" &&
+      keySecret !== "YOUR_RAZORPAY_KEY_SECRET" &&
+      keyId.startsWith("rzp_"),
+  };
+}
 
-const razorpay = new Razorpay({
-  key_id: razorpayKeyId,
-  key_secret: razorpayKeySecret,
-});
+export function isRazorpayReady() {
+  return getRazorpayConfig().configured;
+}
 
 router.post("/", async (req, res) => {
   const amount = Number(req.body.amount || 0);
 
-  if (!amount) {
+  if (!amount || amount <= 0) {
     return res.status(400).json({ message: "Amount is required" });
   }
 
-  if (!isRazorpayConfigured) {
-    return res.json({
-      id: `order_demo_${Date.now()}`,
-      keyId: razorpayKeyId,
-      amount: amount * 100,
-      currency: "INR",
+  const { keyId, keySecret, configured } = getRazorpayConfig();
+
+  if (!configured) {
+    return res.status(503).json({
+      message: "Razorpay keys are not configured",
       demo: true,
     });
   }
 
   try {
+    const razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+
     const order = await razorpay.orders.create({
-      amount: amount * 100,
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `stationery_${Date.now()}`,
     });
 
-    res.json({ ...order, keyId: razorpayKeyId });
+    res.json({ ...order, keyId });
   } catch (error) {
     console.error("Razorpay order failed:", error.message);
-    res.json({
-      id: `order_fallback_${Date.now()}`,
-      keyId: razorpayKeyId,
-      amount: amount * 100,
-      currency: "INR",
-      fallback: true,
+    res.status(502).json({
+      message: "Razorpay order failed",
+      error: error.message,
     });
   }
 });

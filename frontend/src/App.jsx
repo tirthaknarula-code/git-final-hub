@@ -231,10 +231,18 @@ function App() {
           ordersResponse,
           usersResponse,
           messagesResponse,
-        ].some(
-          (response) => response.status === 401,
-        )) {
+        ].some((response) => response.status === 401)) {
           throw new Error("ADMIN_LOCKED");
+        }
+
+        if ([
+          summaryResponse,
+          productsResponse,
+          ordersResponse,
+          usersResponse,
+          messagesResponse,
+        ].some((response) => !response.ok)) {
+          throw new Error("ADMIN_LOAD_FAILED");
         }
 
         const [summary, productsData, ordersData, usersData, messagesData] =
@@ -398,9 +406,14 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: total }),
       });
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json().catch(() => ({}));
+        throw new Error(errorData.message || "Payment service is unavailable");
+      }
+
       const order = await orderResponse.json();
       const savedOrder = await saveOrder(
-        order.demo || order.fallback ? "razorpay-direct" : "razorpay",
+        "razorpay",
         order.id,
         "pending-payment",
       );
@@ -423,7 +436,7 @@ function App() {
         currency: order.currency || "INR",
         name: "Stationery Hub",
         description: "DOMS stationery order payment",
-        order_id: order.demo || order.fallback ? undefined : order.id,
+        order_id: order.id,
         prefill: {
           name: user?.name || "Student",
           email: user?.email || "",
@@ -455,8 +468,9 @@ function App() {
       });
 
       checkout.open();
-    } catch {
-      await saveCheckoutOrder("manual-checkout");
+    } catch (error) {
+      setPaying(false);
+      setMessage(error.message || "Payment service is unavailable right now.");
     }
   };
 
