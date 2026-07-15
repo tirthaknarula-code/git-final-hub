@@ -26,7 +26,7 @@ button:disabled {
 
 .app-shell {
   margin: 0 auto;
-  max-width: 1580px;
+  max-width: 1560px;
   min-height: 100vh;
 }
 
@@ -148,9 +148,9 @@ main {
 
 .panel {
   background: white;
-  border: 2px solid #f4e8ff;
+  border: 1px solid #f4e8ff;
   border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(98, 52, 147, 0.18);
+  box-shadow: 0 14px 34px rgba(98, 52, 147, 0.14);
   margin-bottom: 28px;
   padding: clamp(26px, 3.2vw, 42px);
 }
@@ -526,16 +526,4 @@ td {
 .logout-admin {
   background: #ffe3e9;
   color: #c81d4f;
-}
-
-@media (min-width: 1500px) {
-  .site-header,
-  .nav-tabs {
-    border-left: 2px solid #1b2330;
-    border-right: 2px solid #1b2330;
-  }
-
-  .panel {
-    border-width: 3px;
-  }
 }
