@@ -1,0 +1,150 @@
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f6ff, #fff4d9, #eafff3);
+    background-attachment: fixed;
+    margin: 0;
+    color: #17202a;
+}
+
+header{
+    background: linear-gradient(90deg, #0b4f6c, #1b6ca8, #0f766e);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+header h1{
+    margin: 0;
+    font-size: 42px;
+}
+
+header p{
+    font-size: 18px;
+}
+
+nav{
+    margin-top: 15px;
+}
+
+nav a{
+    color: white;
+    text-decoration: none;
+    margin: 10px;
+    font-weight: bold;
+}
+
+nav a:hover{
+    color: #ffd166;
+}
+
+.container{
+    width: 80%;
+    margin: 25px auto;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 14px #b6c7d6;
+}
+
+h2{
+    color: #0b4f6c;
+    text-align: center;
+}
+
+h3{
+    color: #1b6ca8;
+}
+
+p{
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.hero-img{
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.btn{
+    background-color: #0b4f6c;
+    color: white;
+    padding: 12px 25px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.btn:hover{
+    background-color: #1b6ca8;
+}
+
+.card{
+    width: 28%;
+    display: inline-block;
+    vertical-align: top;
+    margin: 15px;
+    padding: 15px;
+    background-color: #eaf6ff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 6px lightgray;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table, th, td{
+    border: 1px solid black;
+}
+
+th{
+    background-color: #0b4f6c;
+    color: white;
+}
+
+th, td{
+    padding: 12px;
+    text-align: center;
+}
+
+label{
+    font-weight: bold;
+}
+
+input, textarea{
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+textarea{
+    height: 100px;
+}
+
+button{
+    background-color: #0b4f6c;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    cursor: pointer;
+}
+
+button:hover{
+    background-color: #1b6ca8;
+}
+
+footer{
+    text-align: center;
+    padding: 12px;
+    background: linear-gradient(90deg, #0f766e, #1b6ca8);
+    color: white;
+    margin-top: 20px;
+}
