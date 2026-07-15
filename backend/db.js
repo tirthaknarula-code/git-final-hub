@@ -1,31 +1,43 @@
-﻿import mysql from "mysql2/promise";
+import mysql from "mysql2/promise";
 
 export const dbName = process.env.MYSQL_DATABASE || "dukan";
 export let db;
 
 export const seedProducts = [
   {
-    title: "DOMS Fine Art Kit",
+    id: "doms-fine-art",
+    title: "Fine Art Colour Kit",
     brand: "DOMS",
     price: 499,
     image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
-    description: "Premium art supplies inspired by DOMS fine art collection.",
+    description: "Complete colour kit for art files, charts and school projects.",
   },
   {
-    title: "DOMS Pencils & Accessories",
+    id: "doms-pencil-pack",
+    title: "Pencils & Accessories Pack",
     brand: "DOMS",
     price: 120,
     image: "https://domsindia.com/wp-content/uploads/2025/06/1-1-scaled.webp",
-    description: "Daily writing and drawing essentials for school work.",
+    description: "Daily writing, shading and drawing essentials for classwork.",
   },
   {
-    title: "DOMS Drawing Colours",
+    id: "doms-colours",
+    title: "Drawing Colour Set",
     brand: "DOMS",
     price: 260,
     image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
-    description: "Colouring products for charts, projects and creative files.",
+    description: "Bright colours for diagrams, posters and creative assignments.",
   },
   {
+    id: "doms-tools",
+    title: "Mathematical Tools Box",
+    brand: "DOMS",
+    price: 180,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/3-scaled.webp",
+    description: "Exam-ready geometry box with scale, compass and instruments.",
+  },
+  {
+    id: "classmate-notebooks",
     title: "Classmate Notebook Pack",
     brand: "Classmate",
     price: 240,
@@ -33,11 +45,60 @@ export const seedProducts = [
     description: "Notebook bundle for notes, homework and project writing.",
   },
   {
+    id: "camlin-combo",
     title: "Camlin Creative Combo",
     brand: "Camlin",
     price: 350,
     image: "https://domsindia.com/wp-content/uploads/2025/06/5-scaled.webp",
     description: "Creative stationery combo for school art and hobby work.",
+  },
+  {
+    id: "classmate-long-book",
+    title: "Long Register Bundle",
+    brand: "Classmate",
+    price: 320,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/6-scaled.webp",
+    description: "Registers for accounts, science notes and long-form writing.",
+  },
+  {
+    id: "camlin-brush-set",
+    title: "Brush & Paint Set",
+    brand: "Camlin",
+    price: 285,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/7-scaled.webp",
+    description: "Paint brushes and colour supplies for practical art classes.",
+  },
+  {
+    id: "exam-writing-kit",
+    title: "Exam Writing Kit",
+    brand: "Stationery Hub",
+    price: 199,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/8-scaled.webp",
+    description: "Pens, pencils, eraser and sharpener packed for exam day.",
+  },
+  {
+    id: "project-file-pack",
+    title: "Project File Pack",
+    brand: "Stationery Hub",
+    price: 150,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/9-scaled.webp",
+    description: "Files and sheets for assignments, records and submissions.",
+  },
+  {
+    id: "highlighter-set",
+    title: "Highlighter Set",
+    brand: "Camlin",
+    price: 175,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/10-scaled.webp",
+    description: "Soft colour markers for revision notes and important points.",
+  },
+  {
+    id: "desk-organizer-kit",
+    title: "Desk Organizer Kit",
+    brand: "Stationery Hub",
+    price: 449,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/11-scaled.webp",
+    description: "Useful desktop set to keep pens, notes and clips arranged.",
   },
 ];
 
@@ -124,13 +185,18 @@ async function createTables() {
 }
 
 export async function seedDatabase() {
-  const [[{ count }]] = await db.query("SELECT COUNT(*) AS count FROM products");
-  if (count > 0) return;
+  const [existingRows] = await db.query("SELECT title FROM products");
+  const existingTitles = new Set(existingRows.map((product) => product.title));
+  const missingProducts = seedProducts.filter(
+    (product) => !existingTitles.has(product.title),
+  );
+
+  if (missingProducts.length === 0) return;
 
   await db.query(
     "INSERT INTO products (title, brand, price, image, description) VALUES ?",
     [
-      seedProducts.map((product) => [
+      missingProducts.map((product) => [
         product.title,
         product.brand,
         product.price,

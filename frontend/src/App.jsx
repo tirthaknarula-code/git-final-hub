@@ -1,39 +1,39 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GoogleOauth from "./Components/GoogleOauth";
 import "./App.css";
 
 const products = [
   {
     id: "doms-fine-art",
-    title: "DOMS Fine Art Kit",
+    title: "Fine Art Colour Kit",
     brand: "DOMS",
     price: 499,
     image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
-    description: "Premium art supplies inspired by DOMS fine art collection.",
+    description: "Complete colour kit for art files, charts and school projects.",
   },
   {
     id: "doms-pencil-pack",
-    title: "DOMS Pencils & Accessories",
+    title: "Pencils & Accessories Pack",
     brand: "DOMS",
     price: 120,
     image: "https://domsindia.com/wp-content/uploads/2025/06/1-1-scaled.webp",
-    description: "Daily writing and drawing essentials for school work.",
+    description: "Daily writing, shading and drawing essentials for classwork.",
   },
   {
     id: "doms-colours",
-    title: "DOMS Drawing Colours",
+    title: "Drawing Colour Set",
     brand: "DOMS",
     price: 260,
     image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
-    description: "Colouring products for charts, projects and creative files.",
+    description: "Bright colours for diagrams, posters and creative assignments.",
   },
   {
     id: "doms-tools",
-    title: "DOMS Mathematical Tools",
+    title: "Mathematical Tools Box",
     brand: "DOMS",
     price: 180,
     image: "https://domsindia.com/wp-content/uploads/2025/06/3-scaled.webp",
-    description: "Maths class instruments and exam-ready geometry material.",
+    description: "Exam-ready geometry box with scale, compass and instruments.",
   },
   {
     id: "classmate-notebooks",
@@ -51,32 +51,104 @@ const products = [
     image: "https://domsindia.com/wp-content/uploads/2025/06/5-scaled.webp",
     description: "Creative stationery combo for school art and hobby work.",
   },
+  {
+    id: "classmate-long-book",
+    title: "Long Register Bundle",
+    brand: "Classmate",
+    price: 320,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/6-scaled.webp",
+    description: "Registers for accounts, science notes and long-form writing.",
+  },
+  {
+    id: "camlin-brush-set",
+    title: "Brush & Paint Set",
+    brand: "Camlin",
+    price: 285,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/7-scaled.webp",
+    description: "Paint brushes and colour supplies for practical art classes.",
+  },
+  {
+    id: "exam-writing-kit",
+    title: "Exam Writing Kit",
+    brand: "Stationery Hub",
+    price: 199,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/8-scaled.webp",
+    description: "Pens, pencils, eraser and sharpener packed for exam day.",
+  },
+  {
+    id: "project-file-pack",
+    title: "Project File Pack",
+    brand: "Stationery Hub",
+    price: 150,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/9-scaled.webp",
+    description: "Files and sheets for assignments, records and submissions.",
+  },
+  {
+    id: "highlighter-set",
+    title: "Highlighter Set",
+    brand: "Camlin",
+    price: 175,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/10-scaled.webp",
+    description: "Soft colour markers for revision notes and important points.",
+  },
+  {
+    id: "desk-organizer-kit",
+    title: "Desk Organizer Kit",
+    brand: "Stationery Hub",
+    price: 449,
+    image: "https://domsindia.com/wp-content/uploads/2025/06/11-scaled.webp",
+    description: "Useful desktop set to keep pens, notes and clips arranged.",
+  },
 ];
 
 const offers = [
   {
     id: "offer-notebook",
-    title: "Notebook Combo",
+    title: "Notebook Saver Combo",
     brand: "Offer",
     price: 250,
-    description: "Buy 5 notebooks and get 1 Classmate notebook free.",
+    description: "Buy a notebook bundle and get one extra notebook free.",
     freeItem: "Free Classmate Notebook",
   },
   {
     id: "offer-exam",
-    title: "Exam Kit",
+    title: "Exam Ready Kit",
     brand: "Offer",
     price: 299,
-    description: "Geometry tools, pencils and eraser combo for exams.",
+    description: "Geometry tools, pencils, pen, eraser and sharpener combo.",
     freeItem: "Free DOMS Eraser",
   },
   {
     id: "offer-art",
-    title: "Art Kit",
+    title: "Art Project Kit",
     brand: "Offer",
     price: 399,
-    description: "Colours, brush and sheets for one complete art project.",
+    description: "Colours, brushes and sheets for one complete art project.",
     freeItem: "Free Drawing Sheet Pack",
+  },
+  {
+    id: "offer-file",
+    title: "Project Submission Pack",
+    brand: "Offer",
+    price: 199,
+    description: "Files, ruled sheets and labels for school submissions.",
+    freeItem: "Free Label Sticker Sheet",
+  },
+  {
+    id: "offer-study",
+    title: "Study Desk Pack",
+    brand: "Offer",
+    price: 349,
+    description: "Sticky notes, markers and writing tools for daily study.",
+    freeItem: "Free Sticky Notes",
+  },
+  {
+    id: "offer-office",
+    title: "Office Starter Pack",
+    brand: "Offer",
+    price: 459,
+    description: "Pens, clips, files and notebook set for office work.",
+    freeItem: "Free Ball Pen Pack",
   },
 ];
 
@@ -181,12 +253,25 @@ function App() {
   }, [page, adminUnlocked, adminPassword, adminReload]);
 
   const addCartItem = (item, note) => {
+    const sameItemCount = cart.filter(
+      (cartItem) => cartItem.id === item.id && !cartItem.isFree,
+    ).length;
+
+    if (sameItemCount >= 3) {
+      setMessage(`Maximum 3 ${item.title} allowed in one order`);
+      return;
+    }
+
     const cartId = `${item.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     setCart((items) => [...items, { ...item, cartId }]);
     setMessage(note || `${item.title} added to cart`);
   };
 
   const addOffer = (offer) => {
+    if (cart.some((item) => item.id === offer.id)) {
+      setMessage(`${offer.title} is already in cart`);
+      return;
+    }
     const paidItem = {
       id: offer.id,
       title: offer.title,
@@ -402,17 +487,17 @@ function App() {
         {page === "home" && (
           <section className="hero panel">
             <div className="hero-copy">
-              <p className="eyebrow">Back to study, ready for work</p>
-              <h2>Study essentials, art kits and classwork supplies.</h2>
+              <p className="eyebrow">Fresh supplies for school and work</p>
+              <h2>Everything for notes, projects, exams and creative work.</h2>
               <p>
-                Shop notebooks, drawing colours, geometry tools and creative
-                combos from one colourful stationery store.
+                Explore notebooks, pens, colours, files, desk tools and combo
+                offers from multiple stationery brands in one place.
               </p>
               <button onClick={() => setPage("products")}>Shop Products</button>
             </div>
             <img
-              src="https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp"
-              alt="DOMS stationery"
+              src="/stationery-hero.png"
+              alt="Stationery Hub collection"
             />
           </section>
         )}
