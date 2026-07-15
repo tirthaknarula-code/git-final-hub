@@ -496,10 +496,10 @@ function App() {
               <button onClick={() => setPage("products")}>Shop Products</button>
             </div>
             <img
-              src="/stationery-hero-small.png"
+              src="https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp"
               alt="DOMS stationery collection"
               onError={(event) => {
-                event.currentTarget.src = "/stationery-hero.png";
+                event.currentTarget.src = "https://domsindia.com/wp-content/uploads/2025/06/1-1-scaled.webp";
               }}
             />
           </section>
@@ -515,7 +515,7 @@ function App() {
                     src={product.image}
                     alt={product.title}
                     onError={(event) => {
-                      event.currentTarget.src = "/stationery-hero-small.png";
+                      event.currentTarget.src = "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp";
                     }}
                   />
                   <span>{product.brand}</span>
