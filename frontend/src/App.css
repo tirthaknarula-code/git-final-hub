@@ -26,7 +26,7 @@ button:disabled {
 
 .app-shell {
   margin: 0 auto;
-  max-width: 1440px;
+  max-width: 1640px;
   min-height: 100vh;
 }
 
@@ -142,8 +142,8 @@ button:disabled {
 
 main {
   margin: 0 auto;
-  max-width: 1180px;
-  padding: 28px 18px;
+  max-width: 1460px;
+  padding: 34px 24px;
 }
 
 .panel {
@@ -152,7 +152,7 @@ main {
   border-radius: 8px;
   box-shadow: 0 12px 32px rgba(98, 52, 147, 0.18);
   margin-bottom: 28px;
-  padding: clamp(20px, 4vw, 34px);
+  padding: clamp(28px, 4vw, 46px);
 }
 
 .panel h2 {
@@ -165,8 +165,9 @@ main {
 .hero {
   align-items: center;
   display: grid;
-  gap: 28px;
-  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  gap: clamp(36px, 5vw, 72px);
+  grid-template-columns: minmax(420px, 0.9fr) minmax(520px, 1.1fr);
+  min-height: 620px;
 }
 
 .hero-copy {
@@ -176,7 +177,7 @@ main {
 
 .hero h2 {
   color: #7b2ff7;
-  font-size: clamp(2rem, 4.8vw, 4.2rem);
+  font-size: clamp(3rem, 5.4vw, 5.4rem);
   line-height: 1.06;
   margin: 0 0 14px;
   overflow-wrap: anywhere;
@@ -186,13 +187,13 @@ main {
   color: #667085;
   font-size: 1.08rem;
   line-height: 1.55;
-  max-width: 560px;
+  max-width: 680px;
 }
 
 .hero img {
   background: #eef7f7;
   border-radius: 8px;
-  height: clamp(260px, 34vw, 430px);
+  height: clamp(420px, 38vw, 560px);
   object-fit: cover;
   width: 100%;
 }
@@ -207,8 +208,8 @@ main {
 .product-grid,
 .offer-grid {
   display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
 }
 
 .product-card,
@@ -219,13 +220,13 @@ main {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 18px;
+  padding: 22px;
 }
 
 .product-card img {
   background: white;
   border-radius: 8px;
-  height: 180px;
+  height: 230px;
   object-fit: contain;
   width: 100%;
 }
@@ -451,7 +452,7 @@ td {
   color: #344054;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .site-header,
   .hero {
     grid-template-columns: 1fr;
@@ -464,11 +465,11 @@ td {
   .product-grid,
   .offer-grid,
   .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 680px) {
   .site-header h1 {
     font-size: 3rem;
   }
