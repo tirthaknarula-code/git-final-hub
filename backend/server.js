@@ -1,9 +1,10 @@
-﻿import cors from "cors";
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { db, dbName, initDatabase } from "./db.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
+import contactRoutes from "./routes/contact.js";
 import ordersRoutes from "./routes/orders.js";
 import paymentRoutes, { isRazorpayConfigured } from "./routes/payment.js";
 import productsRoutes from "./routes/products.js";
@@ -32,6 +33,7 @@ app.get("/api/health", async (req, res) => {
 
 app.use("/api", productsRoutes);
 app.use("/api", ordersRoutes);
+app.use("/api", contactRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/create-order", paymentRoutes);

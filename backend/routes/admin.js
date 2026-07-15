@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import { db } from "../db.js";
 import { requireAdminPassword } from "../middleware/adminAuth.js";
 
@@ -70,4 +70,10 @@ router.get("/users", async (req, res) => {
   res.json(users);
 });
 
+router.get("/contact-messages", async (req, res) => {
+  const [messages] = await db.query(
+    "SELECT id, name, email, message, created_at AS createdAt FROM contact_messages ORDER BY id DESC",
+  );
+  res.json(messages);
+});
 export default router;

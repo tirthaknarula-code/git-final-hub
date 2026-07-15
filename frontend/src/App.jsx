@@ -180,9 +180,16 @@ function App() {
     products: [],
     orders: [],
     users: [],
+    messages: [],
   });
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminReload, setAdminReload] = useState(0);
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [contactSaving, setContactSaving] = useState(false);
 
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + item.price, 0),
@@ -204,26 +211,40 @@ function App() {
       setAdminLoading(true);
       try {
         const adminHeaders = { "x-admin-password": adminPassword };
-        const [summaryResponse, productsResponse, ordersResponse, usersResponse] =
-          await Promise.all([
-            fetch("/api/admin/summary", { headers: adminHeaders }),
-            fetch("/api/admin/products", { headers: adminHeaders }),
-            fetch("/api/admin/orders", { headers: adminHeaders }),
-            fetch("/api/admin/users", { headers: adminHeaders }),
-          ]);
+        const [
+          summaryResponse,
+          productsResponse,
+          ordersResponse,
+          usersResponse,
+          messagesResponse,
+        ] = await Promise.all([
+          fetch("/api/admin/summary", { headers: adminHeaders }),
+          fetch("/api/admin/products", { headers: adminHeaders }),
+          fetch("/api/admin/orders", { headers: adminHeaders }),
+          fetch("/api/admin/users", { headers: adminHeaders }),
+          fetch("/api/admin/contact-messages", { headers: adminHeaders }),
+        ]);
 
-        if ([summaryResponse, productsResponse, ordersResponse, usersResponse].some(
+        if ([
+          summaryResponse,
+          productsResponse,
+          ordersResponse,
+          usersResponse,
+          messagesResponse,
+        ].some(
           (response) => response.status === 401,
         )) {
           throw new Error("ADMIN_LOCKED");
         }
 
-        const [summary, productsData, ordersData, usersData] = await Promise.all([
-          summaryResponse.json(),
-          productsResponse.json(),
-          ordersResponse.json(),
-          usersResponse.json(),
-        ]);
+        const [summary, productsData, ordersData, usersData, messagesData] =
+          await Promise.all([
+            summaryResponse.json(),
+            productsResponse.json(),
+            ordersResponse.json(),
+            usersResponse.json(),
+            messagesResponse.json(),
+          ]);
 
         if (active) {
           setAdminData({
@@ -231,6 +252,7 @@ function App() {
             products: productsData,
             orders: ordersData,
             users: usersData,
+            messages: messagesData,
           });
         }
       } catch (error) {
@@ -438,6 +460,40 @@ function App() {
     }
   };
 
+  const updateContactField = (field, value) => {
+    setContactForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const submitContact = async (event) => {
+    event.preventDefault();
+    const name = contactForm.name.trim();
+    const email = contactForm.email.trim();
+    const contactMessage = contactForm.message.trim();
+
+    if (!name || !email || !contactMessage) {
+      setMessage("Please fill all contact fields.");
+      return;
+    }
+
+    setContactSaving(true);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message: contactMessage }),
+      });
+
+      if (!response.ok) throw new Error("CONTACT_FAILED");
+
+      setContactForm({ name: "", email: "", message: "" });
+      setMessage("Message saved in MySQL.");
+      setAdminReload((value) => value + 1);
+    } catch {
+      setMessage("Message not saved. Check backend and MySQL.");
+    } finally {
+      setContactSaving(false);
+    }
+  };
   const unlockAdmin = (event) => {
     event.preventDefault();
     if (!adminPassword.trim()) {
@@ -610,11 +666,28 @@ function App() {
         {page === "contact" && (
           <section className="panel">
             <h2>Contact</h2>
-            <form className="contact-form">
-              <input placeholder="Name" />
-              <input placeholder="Email" />
-              <textarea placeholder="Message" />
-              <button type="button">Send Message</button>
+            <form className="contact-form" onSubmit={submitContact}>
+              <input
+                placeholder="Name"
+                value={contactForm.name}
+                onChange={(event) => updateContactField("name", event.target.value)}
+              />
+              <input
+                placeholder="Email"
+                type="email"
+                value={contactForm.email}
+                onChange={(event) => updateContactField("email", event.target.value)}
+              />
+              <textarea
+                placeholder="Message"
+                value={contactForm.message}
+                onChange={(event) =>
+                  updateContactField("message", event.target.value)
+                }
+              />
+              <button type="submit" disabled={contactSaving}>
+                {contactSaving ? "Saving..." : "Send Message"}
+              </button>
             </form>
           </section>
         )}
@@ -735,6 +808,31 @@ function App() {
               </table>
             </div>
 
+            <h3>Contact Messages</h3>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminData.messages.map((contactMessage) => (
+                    <tr key={contactMessage.id}>
+                      <td>{contactMessage.id}</td>
+                      <td>{contactMessage.name}</td>
+                      <td>{contactMessage.email}</td>
+                      <td>{contactMessage.message}</td>
+                      <td>{new Date(contactMessage.createdAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <h3>Users</h3>
             <div className="table-wrap">
               <table>
