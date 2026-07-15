@@ -89,7 +89,7 @@ export const seedProducts = [
     title: "Markers & Highlighters",
     brand: "DOMS",
     price: 175,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/10-scaled.webp",
+    image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
     description: "Marker pens and highlighters for revision and presentation.",
   },
   {
@@ -97,7 +97,7 @@ export const seedProducts = [
     title: "Gifting Stationery Pack",
     brand: "DOMS",
     price: 449,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/11-scaled.webp",
+    image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
     description: "Gift-ready stationery pack for students and creative users.",
   },
 ];
@@ -187,6 +187,15 @@ async function createTables() {
 export async function seedDatabase() {
   const currentTitles = seedProducts.map((product) => product.title);
   await db.query("DELETE FROM products WHERE title NOT IN (?)", [currentTitles]);
+
+  for (const product of seedProducts) {
+    await db.query(
+      `UPDATE products
+       SET brand = ?, price = ?, image = ?, description = ?
+       WHERE title = ?`,
+      [product.brand, product.price, product.image, product.description, product.title],
+    );
+  }
 
   const [existingRows] = await db.query("SELECT title FROM products");
   const existingTitles = new Set(existingRows.map((product) => product.title));

@@ -88,7 +88,7 @@ const products = [
     title: "Markers & Highlighters",
     brand: "DOMS",
     price: 175,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/10-scaled.webp",
+    image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
     description: "Marker pens and highlighters for revision and presentation.",
   },
   {
@@ -96,7 +96,7 @@ const products = [
     title: "Gifting Stationery Pack",
     brand: "DOMS",
     price: 449,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/11-scaled.webp",
+    image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
     description: "Gift-ready stationery pack for students and creative users.",
   },
 ];
@@ -496,8 +496,11 @@ function App() {
               <button onClick={() => setPage("products")}>Shop Products</button>
             </div>
             <img
-              src="/stationery-hero.png"
+              src="/stationery-hero-small.png"
               alt="DOMS stationery collection"
+              onError={(event) => {
+                event.currentTarget.src = "/stationery-hero.png";
+              }}
             />
           </section>
         )}
@@ -508,7 +511,13 @@ function App() {
             <div className="product-grid">
               {products.map((product) => (
                 <article className="product-card" key={product.id}>
-                  <img src={product.image} alt={product.title} />
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    onError={(event) => {
+                      event.currentTarget.src = "/stationery-hero-small.png";
+                    }}
+                  />
                   <span>{product.brand}</span>
                   <h3>{product.title}</h3>
                   <p>{product.description}</p>
