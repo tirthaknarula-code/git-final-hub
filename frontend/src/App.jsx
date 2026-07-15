@@ -105,50 +105,50 @@ const offers = [
   {
     id: "offer-pencil",
     title: "Pencil Accessories Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 199,
     description: "Pencils and accessories combo for daily classwork.",
-    freeItem: "Free Sharpener",
+    freeItem: "Free DOMS Sharpener",
   },
   {
     id: "offer-colouring",
     title: "Drawing & Colouring Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 299,
     description: "Colouring set for charts, diagrams and project files.",
-    freeItem: "Free Drawing Sheet Pack",
+    freeItem: "Free DOMS Drawing Sheet Pack",
   },
   {
     id: "offer-math",
     title: "Math Instruments Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 249,
     description: "Geometry tools and writing instruments for exam work.",
-    freeItem: "Free Eraser",
+    freeItem: "Free DOMS Eraser",
   },
   {
     id: "offer-paper",
     title: "Paper Stationery Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 279,
     description: "Paper stationery bundle for notes and assignments.",
-    freeItem: "Free Label Sheet",
+    freeItem: "Free DOMS Label Sheet",
   },
   {
     id: "offer-marker",
     title: "Marker Pens Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 229,
     description: "Markers and highlighters for revision and presentation.",
-    freeItem: "Free Sticky Notes",
+    freeItem: "Free DOMS Sticky Notes",
   },
   {
     id: "offer-art",
     title: "Fine Art Combo",
-    brand: "Offer",
+    brand: "DOMS Offer",
     price: 399,
     description: "Fine art supplies for painting and creative projects.",
-    freeItem: "Free Brush",
+    freeItem: "Free DOMS Brush",
   },
 ];
 
@@ -400,7 +400,7 @@ function App() {
         amount: order.amount,
         currency: order.currency || "INR",
         name: "Stationery Hub",
-        description: "Stationery Hub order payment",
+        description: "DOMS stationery order payment",
         order_id: order.demo || order.fallback ? undefined : order.id,
         prefill: {
           name: user?.name || "Student",
@@ -490,14 +490,14 @@ function App() {
               <p className="eyebrow">Fresh supplies for school and work</p>
               <h2>Everything for notes, projects, exams and creative work.</h2>
               <p>
-                Explore notebooks, pens, colours, files, desk tools and combo
-                offers from multiple stationery brands in one place.
+                Explore DOMS notebooks, pens, colours, files, art tools and combo
+                offers in one bright stationery store.
               </p>
               <button onClick={() => setPage("products")}>Shop Products</button>
             </div>
             <img
               src="/stationery-hero.png"
-              alt="Stationery Hub collection"
+              alt="DOMS stationery collection"
             />
           </section>
         )}
