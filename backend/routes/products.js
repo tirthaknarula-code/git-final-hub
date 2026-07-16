@@ -1,13 +1,21 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
+import { mkdirSync } from "fs";
+import { fileURLToPath } from "url";
 import { db, seedDatabase } from "../db.js";
 import { requireAdminPassword } from "../middleware/adminAuth.js";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const backendDir = path.join(__dirname, "..");
+const productImageDir = path.join(backendDir, "images", "products");
+
+mkdirSync(productImageDir, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: "uploads/products",
+  destination: productImageDir,
   filename: (req, file, cb) => {
     const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, "-");
     cb(null, `${Date.now()}-${safeName}`);
@@ -28,7 +36,7 @@ function cleanProduct(body, file) {
     title: String(body.title || "").trim(),
     brand: String(body.brand || "DOMS").trim() || "DOMS",
     price: Number(body.price || 0),
-    image: file ? `/uploads/products/${file.filename}` : String(body.image || "").trim(),
+    image: file ? `/images/products/${file.filename}` : String(body.image || "").trim(),
     description: String(body.description || "").trim(),
     inStock: body.inStock === "false" || body.inStock === false || body.in_stock === false ? false : true,
   };
