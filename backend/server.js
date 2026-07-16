@@ -17,7 +17,20 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+let databaseReady = false;
+let databaseError = "MySQL not checked yet";
+
 app.get("/api/health", async (req, res) => {
+  if (!databaseReady) {
+    return res.status(503).json({
+      message: "Backend running hai, par MySQL connected nahi hai.",
+      database: dbName,
+      databaseType: "MySQL",
+      error: databaseError,
+      razorpayMode: isRazorpayReady() ? "live/test key configured" : "not configured",
+    });
+  }
+
   try {
     await db.query("SELECT 1");
     res.json({
@@ -27,8 +40,19 @@ app.get("/api/health", async (req, res) => {
       razorpayMode: isRazorpayReady() ? "live/test key configured" : "not configured",
     });
   } catch (error) {
-    res.status(500).json({ message: "MySQL not connected", error: error.message });
+    databaseReady = false;
+    databaseError = error.message;
+    res.status(503).json({ message: "MySQL not connected", error: error.message });
   }
+});
+
+app.use((req, res, next) => {
+  if (databaseReady) return next();
+
+  res.status(503).json({
+    message: "Backend running hai, par MySQL connected nahi hai.",
+    error: databaseError,
+  });
 });
 
 app.use("/api", productsRoutes);
@@ -38,16 +62,23 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/create-order", paymentRoutes);
 
+
 async function start() {
-  await initDatabase();
+  try {
+    await initDatabase();
+    databaseReady = true;
+    databaseError = "";
+    console.log(`MySQL database connected: ${dbName}`);
+  } catch (error) {
+    databaseReady = false;
+    databaseError = error.message;
+    console.error("MySQL connect nahi hua:", error.message);
+    console.error("MySQL/XAMPP start karke backend terminal me Ctrl+C then npm run backend chalao.");
+  }
 
   app.listen(port, () => {
     console.log(`Backend API running on http://localhost:${port}`);
-    console.log(`MySQL database connected: ${dbName}`);
   });
 }
 
-start().catch((error) => {
-  console.error("Backend start failed:", error.message);
-  console.error("Check MySQL server and backend/.env settings.");
-});
+start();

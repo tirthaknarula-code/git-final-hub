@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "npm run backend",
+    "start": "node dev-server.js",
     "backend": "npm --prefix backend start",
     "frontend": "npm --prefix frontend run dev -- --host 127.0.0.1",
     "build": "npm --prefix frontend run build",
-    "dev": "echo Run backend and frontend in two terminals: npm run backend and npm run frontend"
+    "dev": "node dev-server.js"
   }
 }
