@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import GoogleOauth from "./Components/GoogleOauth";
 import "./App.css";
 
-const products = [
+const defaultProducts = [
   {
     id: "doms-fine-art",
     title: "Fine Art Kit",
@@ -192,6 +192,15 @@ function App() {
     message: "",
   });
   const [contactSaving, setContactSaving] = useState(false);
+  const [products, setProducts] = useState(defaultProducts);
+  const [productSaving, setProductSaving] = useState(false);
+  const [productForm, setProductForm] = useState({
+    title: "",
+    brand: "DOMS",
+    price: "",
+    image: "",
+    description: "",
+  });
 
   const isAdminUser = Boolean(
     user?.email && allowedAdminEmails.includes(user.email.toLowerCase()),
@@ -483,6 +492,55 @@ function App() {
     }
   };
 
+
+  const updateProductField = (field, value) => {
+    setProductForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const submitProduct = async (event) => {
+    event.preventDefault();
+    const title = productForm.title.trim();
+    const brand = productForm.brand.trim() || "DOMS";
+    const price = Number(productForm.price || 0);
+    const image = productForm.image.trim();
+    const description = productForm.description.trim();
+
+    if (!title || !price || !image || !description) {
+      setMessage("Fill product name, price, image and description.");
+      return;
+    }
+
+    setProductSaving(true);
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": adminPassword,
+          "x-admin-email": user?.email || "",
+        },
+        body: JSON.stringify({ title, brand, price, image, description }),
+      });
+
+      if (!response.ok) throw new Error("PRODUCT_SAVE_FAILED");
+
+      const savedProduct = await response.json();
+      setProducts((current) => [savedProduct, ...current]);
+      setProductForm({
+        title: "",
+        brand: "DOMS",
+        price: "",
+        image: "",
+        description: "",
+      });
+      setAdminReload((value) => value + 1);
+      setMessage("Product added in MySQL.");
+    } catch {
+      setMessage("Product not added. Check admin access and backend.");
+    } finally {
+      setProductSaving(false);
+    }
+  };
   const updateContactField = (field, value) => {
     setContactForm((current) => ({ ...current, [field]: value }));
   };
@@ -796,6 +854,52 @@ function App() {
               </div>
             )}
 
+
+            <h3>Add Product</h3>
+            <form className="admin-product-form" onSubmit={submitProduct}>
+              <input
+                placeholder="Product name"
+                value={productForm.title}
+                onChange={(event) => updateProductField("title", event.target.value)}
+              />
+              <input
+                placeholder="Brand"
+                value={productForm.brand}
+                onChange={(event) => updateProductField("brand", event.target.value)}
+              />
+              <input
+                placeholder="Price"
+                type="number"
+                min="1"
+                value={productForm.price}
+                onChange={(event) => updateProductField("price", event.target.value)}
+              />
+              <input
+                placeholder="Image URL"
+                value={productForm.image}
+                onChange={(event) => updateProductField("image", event.target.value)}
+              />
+              <textarea
+                placeholder="Description"
+                value={productForm.description}
+                onChange={(event) =>
+                  updateProductField("description", event.target.value)
+                }
+              />
+              {productForm.image && (
+                <img
+                  className="product-preview"
+                  src={productForm.image}
+                  alt="Product preview"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
+              <button type="submit" disabled={productSaving}>
+                {productSaving ? "Adding..." : "Add Product"}
+              </button>
+            </form>
             <h3>Products and Sold Data</h3>
             <div className="table-wrap">
               <table>

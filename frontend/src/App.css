@@ -527,3 +527,49 @@ td {
   background: #ffe3e9;
   color: #c81d4f;
 }
+
+.admin-product-form {
+  background: #f8fbff;
+  border: 1px solid #d8e2ef;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 18px;
+}
+
+.admin-product-form input,
+.admin-product-form textarea {
+  border: 1px solid #aebdca;
+  border-radius: 6px;
+  font: inherit;
+  padding: 12px;
+  width: 100%;
+}
+
+.admin-product-form textarea,
+.admin-product-form button,
+.product-preview {
+  grid-column: 1 / -1;
+}
+
+.admin-product-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.product-preview {
+  background: white;
+  border: 1px solid #d8e2ef;
+  border-radius: 8px;
+  height: 160px;
+  object-fit: contain;
+  padding: 10px;
+  width: 100%;
+}
+
+@media (max-width: 680px) {
+  .admin-product-form {
+    grid-template-columns: 1fr;
+  }
+}
