@@ -200,6 +200,7 @@ function App() {
     brand: "DOMS",
     price: "",
     image: "",
+    imageFile: null,
     description: "",
     inStock: true,
   });
@@ -531,6 +532,7 @@ function App() {
       brand: "DOMS",
       price: "",
       image: "",
+      imageFile: null,
       description: "",
       inStock: true,
     });
@@ -543,6 +545,7 @@ function App() {
       brand: product.brand || "DOMS",
       price: product.price || "",
       image: product.image || "",
+      imageFile: null,
       description: product.description || "",
       inStock: !(product.inStock === false || product.inStock === 0),
     });
@@ -597,24 +600,33 @@ function App() {
     const brand = productForm.brand.trim() || "DOMS";
     const price = Number(productForm.price || 0);
     const image = productForm.image.trim();
+    const imageFile = productForm.imageFile;
     const description = productForm.description.trim();
     const inStock = Boolean(productForm.inStock);
 
-    if (!title || !price || !image || !description) {
+    if (!title || !price || (!image && !imageFile) || !description) {
       setMessage("Fill product name, price, image and description.");
       return;
     }
 
     setProductSaving(true);
     try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("brand", brand);
+      formData.append("price", price);
+      formData.append("image", image);
+      formData.append("description", description);
+      formData.append("inStock", inStock);
+      if (imageFile) formData.append("imageFile", imageFile);
+
       const response = await fetch(editingProductId ? `/api/products/${editingProductId}` : "/api/products", {
         method: editingProductId ? "PUT" : "POST",
         headers: {
-          "Content-Type": "application/json",
           "x-admin-password": adminPassword,
           "x-admin-email": user?.email || "",
         },
-        body: JSON.stringify({ title, brand, price, image, description, inStock }),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("PRODUCT_SAVE_FAILED");
@@ -630,6 +642,7 @@ function App() {
         brand: "DOMS",
         price: "",
         image: "",
+        imageFile: null,
         description: "",
         inStock: true,
       });
@@ -983,11 +996,23 @@ function App() {
                 value={productForm.price}
                 onChange={(event) => updateProductField("price", event.target.value)}
               />
-              <input
-                placeholder="Image URL"
-                value={productForm.image}
-                onChange={(event) => updateProductField("image", event.target.value)}
-              />
+              <label className="upload-field">
+                Product Image
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(event) =>
+                    updateProductField("imageFile", event.target.files?.[0] || null)
+                  }
+                />
+              </label>
+              {editingProductId && (
+                <input
+                  placeholder="Current image path"
+                  value={productForm.image}
+                  onChange={(event) => updateProductField("image", event.target.value)}
+                />
+              )}
               <textarea
                 placeholder="Description"
                 value={productForm.description}
@@ -1003,10 +1028,14 @@ function App() {
                 />
                 In Stock
               </label>
-              {productForm.image && (
+              {(productForm.imageFile || productForm.image) && (
                 <img
                   className="product-preview"
-                  src={productForm.image}
+                  src={
+                    productForm.imageFile
+                      ? URL.createObjectURL(productForm.imageFile)
+                      : productForm.image
+                  }
                   alt="Product preview"
                   onError={(event) => {
                     event.currentTarget.style.display = "none";

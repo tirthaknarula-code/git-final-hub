@@ -617,3 +617,18 @@ td {
 .table-actions button {
   padding: 8px 10px;
 }
+
+.upload-field {
+  border: 1px dashed #7b2ff7;
+  border-radius: 6px;
+  color: #17202a;
+  display: grid;
+  font-weight: 800;
+  gap: 8px;
+  padding: 12px;
+}
+
+.upload-field input {
+  border: 0;
+  padding: 0;
+}

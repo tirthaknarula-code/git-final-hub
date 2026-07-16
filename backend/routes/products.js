@@ -1,17 +1,36 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import { db, seedDatabase } from "../db.js";
 import { requireAdminPassword } from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
-function cleanProduct(body) {
+const storage = multer.diskStorage({
+  destination: "uploads/products",
+  filename: (req, file, cb) => {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, "-");
+    cb(null, `${Date.now()}-${safeName}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const allowed = [".jpg", ".jpeg", ".png", ".webp"];
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, allowed.includes(ext));
+  },
+});
+
+function cleanProduct(body, file) {
   return {
     title: String(body.title || "").trim(),
     brand: String(body.brand || "DOMS").trim() || "DOMS",
     price: Number(body.price || 0),
-    image: String(body.image || "").trim(),
+    image: file ? `/uploads/products/${file.filename}` : String(body.image || "").trim(),
     description: String(body.description || "").trim(),
-    inStock: body.inStock === false || body.in_stock === false ? false : true,
+    inStock: body.inStock === "false" || body.inStock === false || body.in_stock === false ? false : true,
   };
 }
 
@@ -20,8 +39,8 @@ router.get("/products", async (req, res) => {
   res.json(products);
 });
 
-router.post("/products", requireAdminPassword, async (req, res) => {
-  const product = cleanProduct(req.body);
+router.post("/products", requireAdminPassword, upload.single("imageFile"), async (req, res) => {
+  const product = cleanProduct(req.body, req.file);
 
   if (!product.title || !product.price || !product.image || !product.description) {
     return res.status(400).json({
@@ -42,9 +61,9 @@ router.post("/products", requireAdminPassword, async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-router.put("/products/:id", requireAdminPassword, async (req, res) => {
+router.put("/products/:id", requireAdminPassword, upload.single("imageFile"), async (req, res) => {
   const id = Number(req.params.id);
-  const product = cleanProduct(req.body);
+  const product = cleanProduct(req.body, req.file);
 
   if (!id || !product.title || !product.price || !product.image || !product.description) {
     return res.status(400).json({ message: "Complete product details are required" });
