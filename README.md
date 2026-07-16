@@ -1,4 +1,4 @@
-﻿# Dukan - Stationery Hub Ecommerce
+# Dukan - Stationery Hub Ecommerce
 
 Stationery Hub is a React frontend with a separate Express backend. Data is stored in MySQL, Razorpay handles checkout orders, and the password-protected admin panel shows products, orders, users, sales and sold item counts in table format.
 
@@ -84,3 +84,17 @@ Admin APIs require the `x-admin-password` header.
 Open the website and click `admin`, then enter the admin password.
 
 Admin panel shows total orders, total sales, sold items, users, product sold table, order table and user table.
+
+## Auto MySQL Start
+
+On Windows, `npm run backend` now tries to start local MySQL automatically if port `3306` is closed. It checks common MySQL and XAMPP paths.
+
+If MySQL is installed somewhere else, set these in `backend/.env`:
+
+```env
+MYSQL_PORT=3306
+MYSQLD_PATH=C:\path\to\mysqld.exe
+MYSQL_DATA_DIR=C:\path\to\mysql\data
+```
+
+Admin-added products are preserved after backend restart.
