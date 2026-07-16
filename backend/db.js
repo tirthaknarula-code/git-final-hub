@@ -154,6 +154,7 @@ async function createTables() {
       price DECIMAL(10, 2) NOT NULL,
       image TEXT,
       description TEXT,
+      in_stock BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -192,6 +193,12 @@ async function createTables() {
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     )
   `);
+  try {
+    await db.query("ALTER TABLE products ADD COLUMN in_stock BOOLEAN NOT NULL DEFAULT TRUE");
+  } catch (error) {
+    if (error.code !== "ER_DUP_FIELDNAME") throw error;
+  }
+
   await db.query(`
     CREATE TABLE IF NOT EXISTS contact_messages (
       id INT AUTO_INCREMENT PRIMARY KEY,

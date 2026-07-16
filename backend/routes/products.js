@@ -4,35 +4,92 @@ import { requireAdminPassword } from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
+function cleanProduct(body) {
+  return {
+    title: String(body.title || "").trim(),
+    brand: String(body.brand || "DOMS").trim() || "DOMS",
+    price: Number(body.price || 0),
+    image: String(body.image || "").trim(),
+    description: String(body.description || "").trim(),
+    inStock: body.inStock === false || body.in_stock === false ? false : true,
+  };
+}
+
 router.get("/products", async (req, res) => {
-  const [products] = await db.query("SELECT * FROM products ORDER BY id DESC");
+  const [products] = await db.query("SELECT id, title, brand, price, image, description, in_stock AS inStock FROM products ORDER BY id DESC");
   res.json(products);
 });
 
 router.post("/products", requireAdminPassword, async (req, res) => {
-  const title = String(req.body.title || "").trim();
-  const brand = String(req.body.brand || "DOMS").trim() || "DOMS";
-  const price = Number(req.body.price || 0);
-  const image = String(req.body.image || "").trim();
-  const description = String(req.body.description || "").trim();
+  const product = cleanProduct(req.body);
 
-  if (!title || !price || !image || !description) {
+  if (!product.title || !product.price || !product.image || !product.description) {
     return res.status(400).json({
       message: "Title, price, image and description are required",
     });
   }
 
   const [result] = await db.query(
-    "INSERT INTO products (title, brand, price, image, description) VALUES (?, ?, ?, ?, ?)",
-    [title, brand, price, image, description],
+    "INSERT INTO products (title, brand, price, image, description, in_stock) VALUES (?, ?, ?, ?, ?, ?)",
+    [product.title, product.brand, product.price, product.image, product.description, product.inStock],
   );
 
-  const [rows] = await db.query("SELECT * FROM products WHERE id = ?", [
-    result.insertId,
-  ]);
+  const [rows] = await db.query(
+    "SELECT id, title, brand, price, image, description, in_stock AS inStock FROM products WHERE id = ?",
+    [result.insertId],
+  );
 
   res.status(201).json(rows[0]);
 });
+
+router.put("/products/:id", requireAdminPassword, async (req, res) => {
+  const id = Number(req.params.id);
+  const product = cleanProduct(req.body);
+
+  if (!id || !product.title || !product.price || !product.image || !product.description) {
+    return res.status(400).json({ message: "Complete product details are required" });
+  }
+
+  await db.query(
+    "UPDATE products SET title = ?, brand = ?, price = ?, image = ?, description = ?, in_stock = ? WHERE id = ?",
+    [product.title, product.brand, product.price, product.image, product.description, product.inStock, id],
+  );
+
+  const [rows] = await db.query(
+    "SELECT id, title, brand, price, image, description, in_stock AS inStock FROM products WHERE id = ?",
+    [id],
+  );
+
+  if (rows.length === 0) return res.status(404).json({ message: "Product not found" });
+  res.json(rows[0]);
+});
+
+router.patch("/products/:id/stock", requireAdminPassword, async (req, res) => {
+  const id = Number(req.params.id);
+  const inStock = req.body.inStock === true || req.body.in_stock === true;
+
+  if (!id) return res.status(400).json({ message: "Product id is required" });
+
+  await db.query("UPDATE products SET in_stock = ? WHERE id = ?", [inStock, id]);
+  const [rows] = await db.query(
+    "SELECT id, title, brand, price, image, description, in_stock AS inStock FROM products WHERE id = ?",
+    [id],
+  );
+
+  if (rows.length === 0) return res.status(404).json({ message: "Product not found" });
+  res.json(rows[0]);
+});
+
+router.delete("/products/:id", requireAdminPassword, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) return res.status(400).json({ message: "Product id is required" });
+
+  const [result] = await db.query("DELETE FROM products WHERE id = ?", [id]);
+  if (result.affectedRows === 0) return res.status(404).json({ message: "Product not found" });
+
+  res.json({ message: "Product deleted" });
+});
+
 router.post("/seed", async (req, res) => {
   await seedDatabase();
 
@@ -41,5 +98,3 @@ router.post("/seed", async (req, res) => {
 });
 
 export default router;
-
-

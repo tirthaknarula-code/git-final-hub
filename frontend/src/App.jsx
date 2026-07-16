@@ -194,12 +194,14 @@ function App() {
   const [contactSaving, setContactSaving] = useState(false);
   const [products, setProducts] = useState(defaultProducts);
   const [productSaving, setProductSaving] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
   const [productForm, setProductForm] = useState({
     title: "",
     brand: "DOMS",
     price: "",
     image: "",
     description: "",
+    inStock: true,
   });
 
   const isAdminUser = Boolean(
@@ -322,6 +324,11 @@ function App() {
   }, [page, adminUnlocked, adminPassword, adminReload, isAdminUser, user?.email]);
 
   const addCartItem = (item, note) => {
+    if (item.inStock === false || item.inStock === 0) {
+      setMessage(`${item.title} is out of stock`);
+      return;
+    }
+
     const sameItemCount = cart.filter(
       (cartItem) => cartItem.id === item.id && !cartItem.isFree,
     ).length;
@@ -517,6 +524,72 @@ function App() {
   const updateProductField = (field, value) => {
     setProductForm((current) => ({ ...current, [field]: value }));
   };
+  const resetProductForm = () => {
+    setEditingProductId(null);
+    setProductForm({
+      title: "",
+      brand: "DOMS",
+      price: "",
+      image: "",
+      description: "",
+      inStock: true,
+    });
+  };
+
+  const startEditProduct = (product) => {
+    setEditingProductId(product.id);
+    setProductForm({
+      title: product.title || "",
+      brand: product.brand || "DOMS",
+      price: product.price || "",
+      image: product.image || "",
+      description: product.description || "",
+      inStock: !(product.inStock === false || product.inStock === 0),
+    });
+    setMessage(`Editing ${product.title}`);
+  };
+
+  const updateProductStock = async (product) => {
+    const nextStock = product.inStock === false || product.inStock === 0;
+    try {
+      const response = await fetch(`/api/products/${product.id}/stock`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": adminPassword,
+          "x-admin-email": user?.email || "",
+        },
+        body: JSON.stringify({ inStock: nextStock }),
+      });
+      if (!response.ok) throw new Error("STOCK_FAILED");
+      setAdminReload((value) => value + 1);
+      setMessage(nextStock ? "Product marked in stock." : "Product marked out of stock.");
+    } catch {
+      setMessage("Stock status not updated.");
+    }
+  };
+
+  const deleteProduct = async (product) => {
+    if (!window.confirm(`Delete ${product.title}?`)) return;
+
+    try {
+      const response = await fetch(`/api/products/${product.id}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-password": adminPassword,
+          "x-admin-email": user?.email || "",
+        },
+      });
+      if (!response.ok) throw new Error("DELETE_FAILED");
+      setProducts((current) => current.filter((item) => item.id !== product.id));
+      setAdminReload((value) => value + 1);
+      if (editingProductId === product.id) resetProductForm();
+      setMessage("Product deleted from MySQL.");
+    } catch {
+      setMessage("Product not deleted.");
+    }
+  };
+
 
   const submitProduct = async (event) => {
     event.preventDefault();
@@ -525,6 +598,7 @@ function App() {
     const price = Number(productForm.price || 0);
     const image = productForm.image.trim();
     const description = productForm.description.trim();
+    const inStock = Boolean(productForm.inStock);
 
     if (!title || !price || !image || !description) {
       setMessage("Fill product name, price, image and description.");
@@ -533,29 +607,35 @@ function App() {
 
     setProductSaving(true);
     try {
-      const response = await fetch("/api/products", {
-        method: "POST",
+      const response = await fetch(editingProductId ? `/api/products/${editingProductId}` : "/api/products", {
+        method: editingProductId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           "x-admin-password": adminPassword,
           "x-admin-email": user?.email || "",
         },
-        body: JSON.stringify({ title, brand, price, image, description }),
+        body: JSON.stringify({ title, brand, price, image, description, inStock }),
       });
 
       if (!response.ok) throw new Error("PRODUCT_SAVE_FAILED");
 
       const savedProduct = await response.json();
-      setProducts((current) => [savedProduct, ...current]);
+      setProducts((current) =>
+        editingProductId
+          ? current.map((product) => product.id === savedProduct.id ? savedProduct : product)
+          : [savedProduct, ...current],
+      );
       setProductForm({
         title: "",
         brand: "DOMS",
         price: "",
         image: "",
         description: "",
+        inStock: true,
       });
+      setEditingProductId(null);
       setAdminReload((value) => value + 1);
-      setMessage("Product added in MySQL.");
+      setMessage(editingProductId ? "Product updated in MySQL." : "Product added in MySQL.");
     } catch {
       setMessage("Product not added. Check admin access and backend.");
     } finally {
@@ -686,11 +766,19 @@ function App() {
                     }}
                   />
                   <span>{product.brand}</span>
+                  {(product.inStock === false || product.inStock === 0) && (
+                    <small className="stock-badge">Out of Stock</small>
+                  )}
                   <h3>{product.title}</h3>
                   <p>{product.description}</p>
                   <div className="price-row">
                     <strong>Rs. {product.price}</strong>
-                    <button onClick={() => addCartItem(product)}>Add</button>
+                    <button
+                      onClick={() => addCartItem(product)}
+                      disabled={product.inStock === false || product.inStock === 0}
+                    >
+                      {product.inStock === false || product.inStock === 0 ? "Out" : "Add"}
+                    </button>
                   </div>
                 </article>
               ))}
@@ -876,7 +964,7 @@ function App() {
             )}
 
 
-            <h3>Add Product</h3>
+            <h3>{editingProductId ? "Edit Product" : "Add Product"}</h3>
             <form className="admin-product-form" onSubmit={submitProduct}>
               <input
                 placeholder="Product name"
@@ -907,6 +995,14 @@ function App() {
                   updateProductField("description", event.target.value)
                 }
               />
+              <label className="stock-check">
+                <input
+                  type="checkbox"
+                  checked={productForm.inStock}
+                  onChange={(event) => updateProductField("inStock", event.target.checked)}
+                />
+                In Stock
+              </label>
               {productForm.image && (
                 <img
                   className="product-preview"
@@ -918,8 +1014,15 @@ function App() {
                 />
               )}
               <button type="submit" disabled={productSaving}>
-                {productSaving ? "Adding..." : "Add Product"}
+                {productSaving
+                  ? editingProductId ? "Updating..." : "Adding..."
+                  : editingProductId ? "Update Product" : "Add Product"}
               </button>
+              {editingProductId && (
+                <button type="button" className="secondary-btn" onClick={resetProductForm}>
+                  Cancel Edit
+                </button>
+              )}
             </form>
             <h3>Products and Sold Data</h3>
             <div className="table-wrap">
@@ -931,6 +1034,8 @@ function App() {
                     <th>Brand</th>
                     <th>Price</th>
                     <th>Sold</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -941,6 +1046,16 @@ function App() {
                       <td>{product.brand}</td>
                       <td>Rs. {Number(product.price).toFixed(0)}</td>
                       <td>{product.sold}</td>
+                      <td>{product.inStock === false || product.inStock === 0 ? "Out of Stock" : "In Stock"}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button type="button" onClick={() => startEditProduct(product)}>Edit</button>
+                          <button type="button" onClick={() => updateProductStock(product)}>
+                            {product.inStock === false || product.inStock === 0 ? "In Stock" : "Out Stock"}
+                          </button>
+                          <button type="button" className="danger-btn" onClick={() => deleteProduct(product)}>Delete</button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

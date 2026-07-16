@@ -52,6 +52,9 @@ router.get("/products", async (req, res) => {
       p.title,
       p.brand,
       p.price,
+      p.image,
+      p.description,
+      p.in_stock AS inStock,
       COALESCE(SUM(oi.quantity), 0) AS sold
     FROM products p
     LEFT JOIN order_items oi

@@ -573,3 +573,47 @@ td {
     grid-template-columns: 1fr;
   }
 }
+.stock-badge {
+  align-self: flex-start;
+  background: #ffe3e9;
+  border-radius: 4px;
+  color: #c81d4f;
+  font-size: 0.78rem;
+  font-weight: 900;
+  margin-top: 8px;
+  padding: 5px 9px;
+}
+
+.stock-check {
+  align-items: center;
+  display: flex;
+  font-weight: 800;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.stock-check input {
+  width: auto;
+}
+
+.secondary-btn {
+  background: #d8e2ef;
+  color: #17202a;
+  grid-column: 1 / -1;
+}
+
+.danger-btn {
+  background: #ffe3e9;
+  color: #c81d4f;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.table-actions button {
+  padding: 8px 10px;
+}
