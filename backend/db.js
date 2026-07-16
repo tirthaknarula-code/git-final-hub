@@ -1,83 +1,5 @@
-import { spawn } from "child_process";
-import { existsSync } from "fs";
-import net from "net";
 import mysql from "mysql2/promise";
 
-
-function canAutoStartMysql() {
-  const host = process.env.MYSQL_HOST || "127.0.0.1";
-  return ["127.0.0.1", "localhost"].includes(host);
-}
-
-function findMysqlServerPath() {
-  const paths = [
-    process.env.MYSQLD_PATH,
-    "C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin\\mysqld.exe",
-    "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
-    "C:\\xampp\\mysql\\bin\\mysqld.exe",
-  ].filter(Boolean);
-
-  return paths.find((path) => existsSync(path));
-}
-
-function findMysqlDataDir() {
-  const paths = [
-    process.env.MYSQL_DATA_DIR,
-    "C:\\ProgramData\\MySQL\\MySQL Server 8.4\\Data",
-    "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Data",
-    "C:\\xampp\\mysql\\data",
-  ].filter(Boolean);
-
-  return paths.find((path) => existsSync(path));
-}
-
-function waitForPort(port, host = "127.0.0.1", timeoutMs = 20000) {
-  const startedAt = Date.now();
-
-  return new Promise((resolve, reject) => {
-    function check() {
-      const socket = net.createConnection({ host, port }, () => {
-        socket.end();
-        resolve();
-      });
-
-      socket.on("error", () => {
-        socket.destroy();
-        if (Date.now() - startedAt > timeoutMs) {
-          reject(new Error(`MySQL did not start on ${host}:${port}`));
-          return;
-        }
-        setTimeout(check, 700);
-      });
-    }
-
-    check();
-  });
-}
-
-async function startLocalMysqlIfPossible() {
-  if (!canAutoStartMysql()) return false;
-
-  const mysqldPath = findMysqlServerPath();
-  const dataDir = findMysqlDataDir();
-  const port = Number(process.env.MYSQL_PORT || 3306);
-
-  if (!mysqldPath || !dataDir) return false;
-
-  const child = spawn(
-    mysqldPath,
-    [`--datadir=${dataDir}`, `--port=${port}`, "--console"],
-    {
-      detached: true,
-      stdio: "ignore",
-      windowsHide: true,
-    },
-  );
-
-  child.unref();
-  await waitForPort(port);
-  return true;
-}
 export const dbName = process.env.MYSQL_DATABASE || "dukan";
 export let db;
 
@@ -209,18 +131,10 @@ export async function initDatabase() {
   try {
     setup = await mysql.createConnection(baseConfig);
   } catch (error) {
-    if (error.code !== "ECONNREFUSED") throw error;
-
-    console.log("MySQL is not running. Trying to start local MySQL...");
-    const started = await startLocalMysqlIfPossible();
-
-    if (!started) {
-      throw new Error(
-        "MySQL is not running and auto-start failed. Start MySQL/XAMPP, then run npm run backend again.",
-      );
+    if (error.code === "ECONNREFUSED") {
+      throw new Error("MySQL start nahi hai. Pehle MySQL/XAMPP start karo, phir npm run backend chalao.");
     }
-
-    setup = await mysql.createConnection(baseConfig);
+    throw error;
   }
 
   await setup.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
