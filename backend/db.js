@@ -9,7 +9,7 @@ export const seedProducts = [
     title: "Fine Art Kit",
     brand: "DOMS",
     price: 499,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
+    image: "/images/products/doms-fine-art.webp",
     description: "Fine art set for painting, colouring and creative projects.",
   },
   {
@@ -17,7 +17,7 @@ export const seedProducts = [
     title: "Pencils & Accessories",
     brand: "DOMS",
     price: 120,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/1-1-scaled.webp",
+    image: "/images/products/doms-pencil-accessories.webp",
     description: "DOMS pencils and school accessories for daily classwork.",
   },
   {
@@ -25,7 +25,7 @@ export const seedProducts = [
     title: "Drawing & Colouring Set",
     brand: "DOMS",
     price: 260,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
+    image: "/images/products/doms-drawing-colouring.webp",
     description: "Colouring supplies for charts, diagrams and art files.",
   },
   {
@@ -33,7 +33,7 @@ export const seedProducts = [
     title: "Mathematical Drawing Instruments",
     brand: "DOMS",
     price: 180,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/3-scaled.webp",
+    image: "/images/products/doms-math-instruments.webp",
     description: "Geometry and mathematical tools for school exams.",
   },
   {
@@ -41,7 +41,7 @@ export const seedProducts = [
     title: "Paper Stationery Pack",
     brand: "DOMS",
     price: 240,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/4-scaled.webp",
+    image: "/images/products/doms-paper-stationery.webp",
     description: "DOMS paper stationery for notes, projects and assignments.",
   },
   {
@@ -49,7 +49,7 @@ export const seedProducts = [
     title: "School Essentials Kit",
     brand: "DOMS",
     price: 350,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/5-scaled.webp",
+    image: "/images/products/doms-school-kit.webp",
     description: "Useful DOMS school kit with writing and colouring material.",
   },
   {
@@ -57,7 +57,7 @@ export const seedProducts = [
     title: "Notebook & Paper Bundle",
     brand: "DOMS",
     price: 320,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/6-scaled.webp",
+    image: "/images/products/doms-notebooks.webp",
     description: "Paper and notebook bundle for homework and records.",
   },
   {
@@ -65,7 +65,7 @@ export const seedProducts = [
     title: "Brushes & Paint Set",
     brand: "DOMS",
     price: 285,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/7-scaled.webp",
+    image: "/images/products/doms-brushes.webp",
     description: "Brushes and paint supplies for practical art classes.",
   },
   {
@@ -73,7 +73,7 @@ export const seedProducts = [
     title: "Pens & Writing Instruments",
     brand: "DOMS",
     price: 199,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/8-scaled.webp",
+    image: "/images/products/doms-pens-writing.webp",
     description: "Pens and writing tools for school and office use.",
   },
   {
@@ -81,7 +81,7 @@ export const seedProducts = [
     title: "Project File Material",
     brand: "DOMS",
     price: 150,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/9-scaled.webp",
+    image: "/images/products/doms-project-file.webp",
     description: "Sheets and project material for submissions and files.",
   },
   {
@@ -89,7 +89,7 @@ export const seedProducts = [
     title: "Markers & Highlighters",
     brand: "DOMS",
     price: 175,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/2-1-scaled.webp",
+    image: "/images/products/doms-drawing-colouring.webp",
     description: "Marker pens and highlighters for revision and presentation.",
   },
   {
@@ -97,7 +97,7 @@ export const seedProducts = [
     title: "Gifting Stationery Pack",
     brand: "DOMS",
     price: 449,
-    image: "https://domsindia.com/wp-content/uploads/2025/06/FINE-ART.webp",
+    image: "/images/products/doms-fine-art.webp",
     description: "Gift-ready stationery pack for students and creative users.",
   },
 ];
