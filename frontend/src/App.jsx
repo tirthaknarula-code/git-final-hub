@@ -101,6 +101,8 @@ const products = [
   },
 ];
 
+const allowedAdminEmails = ["tirthaknarula@gmail.com", "sanyamsharma261@gmail.com"];
+
 const offers = [
   {
     id: "offer-pencil",
@@ -191,6 +193,10 @@ function App() {
   });
   const [contactSaving, setContactSaving] = useState(false);
 
+  const isAdminUser = Boolean(
+    user?.email && allowedAdminEmails.includes(user.email.toLowerCase()),
+  );
+
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + item.price, 0),
     [cart],
@@ -203,14 +209,17 @@ function App() {
   }, [message]);
 
   useEffect(() => {
-    if (page !== "admin" || !adminUnlocked) return undefined;
+    if (page !== "admin" || !adminUnlocked || !isAdminUser) return undefined;
 
     let active = true;
 
     async function loadAdminData() {
       setAdminLoading(true);
       try {
-        const adminHeaders = { "x-admin-password": adminPassword };
+        const adminHeaders = {
+          "x-admin-password": adminPassword,
+          "x-admin-email": user?.email || "",
+        };
         const [
           summaryResponse,
           productsResponse,
@@ -280,7 +289,7 @@ function App() {
     return () => {
       active = false;
     };
-  }, [page, adminUnlocked, adminPassword, adminReload]);
+  }, [page, adminUnlocked, adminPassword, adminReload, isAdminUser, user?.email]);
 
   const addCartItem = (item, note) => {
     const sameItemCount = cart.filter(
@@ -510,6 +519,10 @@ function App() {
   };
   const unlockAdmin = (event) => {
     event.preventDefault();
+    if (!isAdminUser) {
+      setMessage("Admin panel is only for selected emails.");
+      return;
+    }
     if (!adminPassword.trim()) {
       setMessage("Enter admin password.");
       return;
@@ -529,7 +542,11 @@ function App() {
           <GoogleOauth
             onLogin={saveUser}
             user={user}
-            onLogout={() => setUser(null)}
+            onLogout={() => {
+              setUser(null);
+              setAdminUnlocked(false);
+              if (page === "admin") setPage("home");
+            }}
           />
           <button className="cart-chip" onClick={() => setPage("cart")}>
             Cart {cart.length}
@@ -538,8 +555,9 @@ function App() {
       </header>
 
       <nav className="nav-tabs">
-        {["home", "products", "cart", "offers", "admin", "contact"].map(
-          (item) => (
+        {["home", "products", "cart", "offers", "admin", "contact"]
+          .filter((item) => item !== "admin" || isAdminUser)
+          .map((item) => (
             <button
               className={page === item ? "active" : ""}
               onClick={() => setPage(item)}
@@ -706,7 +724,17 @@ function App() {
           </section>
         )}
 
-        {page === "admin" && !adminUnlocked && (
+        {page === "admin" && !isAdminUser && (
+          <section className="panel admin-login-panel">
+            <form className="admin-login">
+              <h2>Admin Locked</h2>
+              <p>Admin panel is only visible for selected email accounts.</p>
+              <button type="button" onClick={() => setPage("home")}>Go Home</button>
+            </form>
+          </section>
+        )}
+
+        {page === "admin" && isAdminUser && !adminUnlocked && (
           <section className="panel admin-login-panel">
             <form className="admin-login" onSubmit={unlockAdmin}>
               <h2>Admin Login</h2>
@@ -722,7 +750,7 @@ function App() {
           </section>
         )}
 
-        {page === "admin" && adminUnlocked && (
+        {page === "admin" && isAdminUser && adminUnlocked && (
           <section className="panel admin-panel">
             <div className="admin-heading">
               <div>
