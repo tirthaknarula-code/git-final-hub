@@ -1,100 +1,56 @@
-# Dukan - Stationery Hub Ecommerce
+# Stationery Hub Ecommerce
 
-Stationery Hub is a React frontend with a separate Express backend. Data is stored in MySQL, Razorpay handles checkout orders, and the password-protected admin panel shows products, orders, users, sales and sold item counts in table format.
+React frontend, Express backend, MySQL database, admin panel, local product image uploads and Razorpay checkout.
 
 ## Folder Structure
 
 ```text
 project/
-  frontend/             React + Vite website
-  backend/              Express backend app
-    routes/             All API route files
-    middleware/         Admin password protection
-    db.js               MySQL connection, tables and seed data
-    server.js           Backend start file
+  frontend/              React website
+  backend/               Express + MySQL backend
+    images/products/     Downloaded and uploaded product images
+    routes/              API routes
+    db.js                MySQL tables and seed products
+  start-website.bat      One-click website start
 ```
 
-## MySQL Setup
+## Easiest Run
 
-Start MySQL from XAMPP, MySQL Workbench or MySQL Server.
-
-Default backend settings:
-
-```env
-PORT=3001
-MYSQL_HOST=127.0.0.1
-MYSQL_USER=root
-MYSQL_PASSWORD=
-MYSQL_DATABASE=dukan
-ADMIN_PASSWORD=change-this-admin-password
-```
-
-If your MySQL password is different, update `backend/.env`.
-
-The backend creates the database and tables automatically. A manual schema is also available at:
+Double click:
 
 ```text
-backend/schema.sql
+start-website.bat
 ```
 
-## Run Backend
-
-Open one terminal:
-
-```bash
-npm run backend
-```
-
-Backend URL:
+Then open:
 
 ```text
-http://localhost:3001
+http://127.0.0.1:5173
 ```
 
-## Run Frontend
+## Terminal Run
 
-Open a second terminal:
-
-```bash
-npm run frontend
+```powershell
+cd C:\Users\tirth\OneDrive\Attachments\Desktop\project
+npm start
 ```
 
-Frontend URL:
+`npm start` runs backend and frontend together.
+
+## MySQL
+
+The project uses local MySQL database `dukan`. If MySQL does not start automatically, run `start-mysql-admin.bat` as administrator once, then run `npm start`.
+
+Backend health check:
 
 ```text
-http://localhost:5173
+http://127.0.0.1:3001/api/health
 ```
 
-## Main APIs
+## Admin
 
-- `GET /api/health`
-- `GET /api/products`
-- `POST /api/orders`
-- `PATCH /api/orders/:id`
-- `POST /create-order`
-- `GET /api/admin/summary`
-- `GET /api/admin/products`
-- `GET /api/admin/orders`
-- `GET /api/admin/users`
+Only selected Google emails can see the Admin tab. Admin can add, edit, delete and mark products out of stock. Uploaded product images are saved in:
 
-Admin APIs require the `x-admin-password` header.
-
-## Admin Panel
-
-Open the website and click `admin`, then enter the admin password.
-
-Admin panel shows total orders, total sales, sold items, users, product sold table, order table and user table.
-
-## Auto MySQL Start
-
-On Windows, `npm run backend` now tries to start local MySQL automatically if port `3306` is closed. It checks common MySQL and XAMPP paths.
-
-If MySQL is installed somewhere else, set these in `backend/.env`:
-
-```env
-MYSQL_PORT=3306
-MYSQLD_PATH=C:\path\to\mysqld.exe
-MYSQL_DATA_DIR=C:\path\to\mysql\data
+```text
+backend/images/products/
 ```
-
-Admin-added products are preserved after backend restart.
