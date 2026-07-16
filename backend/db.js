@@ -1,4 +1,78 @@
+import { spawn } from "child_process";
+import { existsSync } from "fs";
+import net from "net";
 import mysql from "mysql2/promise";
+
+function localMysqlAllowed() {
+  const host = process.env.MYSQL_HOST || "127.0.0.1";
+  return host === "127.0.0.1" || host === "localhost";
+}
+
+function findMysqlPath() {
+  const paths = [
+    process.env.MYSQLD_PATH,
+    "C:/Program Files/MySQL/MySQL Server 8.4/bin/mysqld.exe",
+    "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqld.exe",
+    "C:/xampp/mysql/bin/mysqld.exe",
+  ].filter(Boolean);
+
+  return paths.find((item) => existsSync(item));
+}
+
+function findMysqlDataDir() {
+  const paths = [
+    process.env.MYSQL_DATA_DIR,
+    "C:/ProgramData/MySQL/MySQL Server 8.4/Data",
+    "C:/ProgramData/MySQL/MySQL Server 8.0/Data",
+    "C:/xampp/mysql/data",
+  ].filter(Boolean);
+
+  return paths.find((item) => existsSync(item));
+}
+
+function waitForMysql(port, host = "127.0.0.1", timeoutMs = 18000) {
+  const startedAt = Date.now();
+
+  return new Promise((resolve, reject) => {
+    function check() {
+      const socket = net.createConnection({ host, port }, () => {
+        socket.end();
+        resolve();
+      });
+
+      socket.on("error", () => {
+        socket.destroy();
+        if (Date.now() - startedAt > timeoutMs) {
+          reject(new Error("MySQL auto start timeout"));
+          return;
+        }
+        setTimeout(check, 700);
+      });
+    }
+
+    check();
+  });
+}
+
+async function startLocalMysql() {
+  if (!localMysqlAllowed()) return false;
+
+  const mysqldPath = findMysqlPath();
+  const dataDir = findMysqlDataDir();
+  const port = Number(process.env.MYSQL_PORT || 3306);
+
+  if (!mysqldPath || !dataDir) return false;
+
+  const mysqlProcess = spawn(
+    mysqldPath,
+    [`--datadir=${dataDir}`, `--port=${port}`, "--console"],
+    { detached: true, stdio: "ignore", windowsHide: true },
+  );
+
+  mysqlProcess.unref();
+  await waitForMysql(port);
+  return true;
+}
 
 export const dbName = process.env.MYSQL_DATABASE || "dukan";
 export let db;
@@ -131,10 +205,16 @@ export async function initDatabase() {
   try {
     setup = await mysql.createConnection(baseConfig);
   } catch (error) {
-    if (error.code === "ECONNREFUSED") {
-      throw new Error("MySQL start nahi hai. Pehle MySQL/XAMPP start karo, phir npm run backend chalao.");
+    if (error.code !== "ECONNREFUSED") throw error;
+
+    console.log("MySQL band hai. Backend local MySQL auto-start try kar raha hai...");
+    const started = await startLocalMysql();
+
+    if (!started) {
+      throw new Error("MySQL auto-start nahi ho paya. start-mysql-admin.bat ko Run as administrator karo, phir npm run backend chalao.");
     }
-    throw error;
+
+    setup = await mysql.createConnection(baseConfig);
   }
 
   await setup.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
@@ -242,3 +322,4 @@ export async function seedDatabase() {
     ],
   );
 }
+
