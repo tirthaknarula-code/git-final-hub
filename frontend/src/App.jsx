@@ -216,6 +216,27 @@ function App() {
     const timer = setTimeout(() => setMessage(""), 2400);
     return () => clearTimeout(timer);
   }, [message]);
+  useEffect(() => {
+    let active = true;
+
+    async function loadProducts() {
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) throw new Error("PRODUCTS_FAILED");
+        const data = await response.json();
+        if (active && Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+      } catch {
+        if (active) setProducts(defaultProducts);
+      }
+    }
+
+    loadProducts();
+    return () => {
+      active = false;
+    };
+  }, [adminReload]);
 
   useEffect(() => {
     if (page !== "admin" || !adminUnlocked || !isAdminUser) return undefined;
@@ -1012,3 +1033,4 @@ function App() {
 }
 
 export default App;
+
