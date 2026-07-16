@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+﻿import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -8,7 +8,7 @@ export default defineConfig({
   cacheDir: "C:/Users/tirth/AppData/Local/Temp/stationery-hub-vite-cache",
   server: {
     port: 5173,
-    strictPort: true,
+    strictPort: false,
     proxy: {
       "/api": "http://localhost:3001",
       "/create-order": "http://localhost:3001",
@@ -16,3 +16,4 @@ export default defineConfig({
     },
   },
 });
+
