@@ -4,15 +4,16 @@ const data = [
     firstName: "Virat",
     lastName: "sharma",
     email: "virat@india.in",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    avatar: "/images/products/doms-pencil-accessories.webp",
   },
   {
     id: 12,
     firstName: "tirthak",
     lastName: "narula",
     email: "tirthak@56789.com",
-    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
+    avatar: "/images/products/doms-fine-art.webp",
   },
 ];
 
 export default data;
+
