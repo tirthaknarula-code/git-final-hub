@@ -26,7 +26,7 @@ button:disabled {
 
 .app-shell {
   margin: 0 auto;
-  max-width: 1560px;
+  max-width: 1688px;
   min-height: 100vh;
 }
 
@@ -45,11 +45,10 @@ button:disabled {
 }
 
 .site-header h1 {
-  font-size: clamp(2.4rem, 7vw, 5.8rem);
+  font-size: clamp(3.2rem, 6.2vw, 6.1rem);
   line-height: 0.95;
   margin: 0;
-  max-width: 760px;
-  overflow-wrap: anywhere;
+  max-width: 980px;
 }
 
 .site-header p {
@@ -142,8 +141,8 @@ button:disabled {
 
 main {
   margin: 0 auto;
-  max-width: 1500px;
-  padding: 30px clamp(28px, 4vw, 54px);
+  max-width: 1600px;
+  padding: 34px clamp(42px, 5vw, 78px);
 }
 
 .panel {
@@ -166,7 +165,7 @@ main {
   align-items: center;
   display: grid;
   gap: clamp(28px, 4vw, 56px);
-  grid-template-columns: minmax(0, 0.9fr) minmax(460px, 1.1fr);
+  grid-template-columns: minmax(390px, 0.95fr) minmax(420px, 1.05fr);
   min-height: 420px;
 }
 
@@ -177,10 +176,9 @@ main {
 
 .hero h2 {
   color: #7b2ff7;
-  font-size: clamp(2.4rem, 4vw, 4.1rem);
+  font-size: clamp(3.2rem, 4.7vw, 5rem);
   line-height: 1.06;
   margin: 0 0 14px;
-  overflow-wrap: anywhere;
 }
 
 .hero p {
@@ -193,7 +191,7 @@ main {
 .hero img {
   background: #eef7f7;
   border-radius: 8px;
-  height: clamp(320px, 30vw, 440px);
+  height: clamp(360px, 31vw, 470px);
   object-fit: cover;
   width: 100%;
 }
