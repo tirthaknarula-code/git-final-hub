@@ -191,6 +191,13 @@ function App() {
     email: "",
     message: "",
   });
+  const [deliveryForm, setDeliveryForm] = useState({
+    customerName: "",
+    phone: "",
+    address: "",
+    city: "",
+    pincode: "",
+  });
   const [contactSaving, setContactSaving] = useState(false);
   const [products, setProducts] = useState(defaultProducts);
   const [productSaving, setProductSaving] = useState(false);
@@ -410,6 +417,7 @@ function App() {
         paymentMode,
         razorpayOrderId,
         status,
+        delivery: deliveryForm,
       }),
     });
     return response.json();
@@ -435,6 +443,17 @@ function App() {
     setMessage("Order placed successfully.");
   };
 
+  const updateDeliveryField = (field, value) => {
+    setDeliveryForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const isDeliveryComplete = () =>
+    deliveryForm.customerName.trim() &&
+    deliveryForm.phone.trim() &&
+    deliveryForm.address.trim() &&
+    deliveryForm.city.trim() &&
+    deliveryForm.pincode.trim();
+
   const completePayment = async () => {
     if (cart.length === 0) {
       setMessage("Your cart is empty");
@@ -443,6 +462,11 @@ function App() {
 
     if (!user) {
       setMessage("Please sign in with Google before payment.");
+      return;
+    }
+
+    if (!isDeliveryComplete()) {
+      setMessage("Please fill delivery details before payment.");
       return;
     }
 
@@ -655,6 +679,25 @@ function App() {
       setProductSaving(false);
     }
   };
+  const deleteAdminRecord = async (type, id) => {
+    if (!window.confirm("Delete this data?")) return;
+
+    try {
+      const response = await fetch(`/api/admin/${type}/${id}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-password": adminPassword,
+          "x-admin-email": user?.email || "",
+        },
+      });
+      if (!response.ok) throw new Error("DELETE_FAILED");
+      setAdminReload((value) => value + 1);
+      setMessage("Data deleted from MySQL.");
+    } catch {
+      setMessage("Data not deleted. Check admin access and backend.");
+    }
+  };
+
   const updateContactField = (field, value) => {
     setContactForm((current) => ({ ...current, [field]: value }));
   };
@@ -832,6 +875,34 @@ function App() {
                     </div>
                   ))}
                 </div>
+                <form className="delivery-form">
+                  <h3>Delivery Details</h3>
+                  <input
+                    placeholder="Full name"
+                    value={deliveryForm.customerName}
+                    onChange={(event) => updateDeliveryField("customerName", event.target.value)}
+                  />
+                  <input
+                    placeholder="Phone number"
+                    value={deliveryForm.phone}
+                    onChange={(event) => updateDeliveryField("phone", event.target.value)}
+                  />
+                  <textarea
+                    placeholder="Full delivery address"
+                    value={deliveryForm.address}
+                    onChange={(event) => updateDeliveryField("address", event.target.value)}
+                  />
+                  <input
+                    placeholder="City"
+                    value={deliveryForm.city}
+                    onChange={(event) => updateDeliveryField("city", event.target.value)}
+                  />
+                  <input
+                    placeholder="Pincode"
+                    value={deliveryForm.pincode}
+                    onChange={(event) => updateDeliveryField("pincode", event.target.value)}
+                  />
+                </form>
                 <div className="total-row">
                   <span>Total</span>
                   <strong>Rs. {total}</strong>
@@ -1101,7 +1172,9 @@ function App() {
                     <th>Total</th>
                     <th>Payment</th>
                     <th>Status</th>
+                    <th>Delivery</th>
                     <th>Date</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1112,7 +1185,15 @@ function App() {
                       <td>Rs. {Number(order.total).toFixed(0)}</td>
                       <td>{order.paymentMode}</td>
                       <td>{order.status}</td>
+                      <td>
+                        {order.customerName || "-"}<br />
+                        {order.phone || ""}<br />
+                        {[order.address, order.city, order.pincode].filter(Boolean).join(", ")}
+                      </td>
                       <td>{new Date(order.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button className="danger-btn" onClick={() => deleteAdminRecord("orders", order.id)}>Delete</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1129,6 +1210,7 @@ function App() {
                     <th>Email</th>
                     <th>Message</th>
                     <th>Date</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1139,6 +1221,9 @@ function App() {
                       <td>{contactMessage.email}</td>
                       <td>{contactMessage.message}</td>
                       <td>{new Date(contactMessage.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button className="danger-btn" onClick={() => deleteAdminRecord("contact-messages", contactMessage.id)}>Delete</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1154,6 +1239,7 @@ function App() {
                     <th>Email</th>
                     <th>Provider</th>
                     <th>Date</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1164,6 +1250,9 @@ function App() {
                       <td>{adminUser.email}</td>
                       <td>{adminUser.provider}</td>
                       <td>{new Date(adminUser.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button className="danger-btn" onClick={() => deleteAdminRecord("users", adminUser.id)}>Delete</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

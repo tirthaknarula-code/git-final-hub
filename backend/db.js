@@ -145,6 +145,14 @@ export async function initDatabase() {
   await seedDatabase();
 }
 
+async function addColumnIfMissing(table, column, definition) {
+  try {
+    await db.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  } catch (error) {
+    if (error.code !== "ER_DUP_FIELDNAME") throw error;
+  }
+}
+
 async function createTables() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS products (

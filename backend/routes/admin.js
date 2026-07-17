@@ -34,6 +34,11 @@ router.get("/orders", async (req, res) => {
       o.status,
       o.razorpay_order_id AS razorpayOrderId,
       o.razorpay_payment_id AS razorpayPaymentId,
+      o.customer_name AS customerName,
+      o.phone,
+      o.address,
+      o.city,
+      o.pincode,
       o.created_at AS createdAt,
       GROUP_CONCAT(CONCAT(oi.product_title, ' x', oi.quantity) SEPARATOR ', ') AS items
     FROM orders o
@@ -78,5 +83,23 @@ router.get("/contact-messages", async (req, res) => {
     "SELECT id, name, email, message, created_at AS createdAt FROM contact_messages ORDER BY id DESC",
   );
   res.json(messages);
+});
+
+router.delete("/orders/:id", async (req, res) => {
+  const [result] = await db.query("DELETE FROM orders WHERE id = ?", [req.params.id]);
+  if (result.affectedRows === 0) return res.status(404).json({ message: "Order not found" });
+  res.json({ message: "Order deleted" });
+});
+
+router.delete("/users/:id", async (req, res) => {
+  const [result] = await db.query("DELETE FROM users WHERE id = ?", [req.params.id]);
+  if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+  res.json({ message: "User deleted" });
+});
+
+router.delete("/contact-messages/:id", async (req, res) => {
+  const [result] = await db.query("DELETE FROM contact_messages WHERE id = ?", [req.params.id]);
+  if (result.affectedRows === 0) return res.status(404).json({ message: "Message not found" });
+  res.json({ message: "Message deleted" });
 });
 export default router;

@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import { db, toOrder } from "../db.js";
 
 const router = express.Router();
@@ -8,17 +8,32 @@ router.post("/orders", async (req, res) => {
   const total = Number(req.body.total || 0);
   const paymentMode = req.body.paymentMode || "manual-checkout";
   const status = req.body.status || "pending-payment";
+  const delivery = req.body.delivery || {};
+  const customerName = String(delivery.customerName || "").trim();
+  const phone = String(delivery.phone || "").trim();
+  const address = String(delivery.address || "").trim();
+  const city = String(delivery.city || "").trim();
+  const pincode = String(delivery.pincode || "").trim();
+
+  if (!customerName || !phone || !address || !city || !pincode) {
+    return res.status(400).json({ message: "Delivery details are required" });
+  }
 
   const [result] = await db.query(
     `INSERT INTO orders
-      (total, payment_mode, status, razorpay_order_id, razorpay_payment_id)
-     VALUES (?, ?, ?, ?, ?)`,
+      (total, payment_mode, status, razorpay_order_id, razorpay_payment_id, customer_name, phone, address, city, pincode)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       total,
       paymentMode,
       status,
       req.body.razorpayOrderId || null,
       req.body.razorpayPaymentId || null,
+      customerName,
+      phone,
+      address,
+      city,
+      pincode,
     ],
   );
 
