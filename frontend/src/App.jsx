@@ -173,11 +173,17 @@ function loadRazorpayScript() {
 function App() {
   const [page, setPage] = useState("home");
   const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("stationeryUser")) || null;
+    } catch {
+      return null;
+    }
+  });
   const [message, setMessage] = useState("");
   const [paying, setPaying] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [adminPassword, setAdminPassword] = useState(() => sessionStorage.getItem("stationeryAdminPassword") || "");
+  const [adminUnlocked, setAdminUnlocked] = useState(() => sessionStorage.getItem("stationeryAdminUnlocked") === "true");
   const [adminData, setAdminData] = useState({
     summary: null,
     products: [],
@@ -391,6 +397,7 @@ function App() {
 
   const saveUser = async (profile) => {
     setUser(profile);
+    localStorage.setItem("stationeryUser", JSON.stringify(profile));
     setMessage(`Welcome ${profile.name}`);
 
     try {
@@ -744,6 +751,8 @@ function App() {
       return;
     }
     setAdminUnlocked(true);
+    sessionStorage.setItem("stationeryAdminPassword", adminPassword);
+    sessionStorage.setItem("stationeryAdminUnlocked", "true");
     setAdminReload((value) => value + 1);
   };
 
@@ -761,6 +770,9 @@ function App() {
             onLogout={() => {
               setUser(null);
               setAdminUnlocked(false);
+              localStorage.removeItem("stationeryUser");
+              sessionStorage.removeItem("stationeryAdminPassword");
+              sessionStorage.removeItem("stationeryAdminUnlocked");
               if (page === "admin") setPage("home");
             }}
           />
@@ -1018,6 +1030,8 @@ function App() {
                   onClick={() => {
                     setAdminUnlocked(false);
                     setAdminPassword("");
+                    sessionStorage.removeItem("stationeryAdminPassword");
+                    sessionStorage.removeItem("stationeryAdminUnlocked");
                   }}
                 >
                   Lock

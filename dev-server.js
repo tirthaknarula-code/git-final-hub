@@ -1,22 +1,12 @@
 import { spawn } from "child_process";
+import path from "path";
 
-function run(name, command, args) {
-  const child = spawn(command, args, { shell: true, stdio: ["ignore", "pipe", "pipe"] });
+const rootDir = process.cwd();
+const backendDir = path.join(rootDir, "backend");
+const frontendDir = path.join(rootDir, "frontend");
 
-  child.stdout.on("data", (data) => {
-    const text = data.toString();
-    if (/mysql|database|backend api|running on|error|failed|refused/i.test(text)) {
-      process.stdout.write(text);
-    }
-  });
-
-  child.stderr.on("data", (data) => {
-    const text = data.toString();
-    if (/error|failed|refused|in use|mysql/i.test(text)) {
-      process.stderr.write(text);
-    }
-  });
-
+function run(name, command, args, cwd) {
+  const child = spawn(command, args, { cwd, shell: true, stdio: "inherit" });
   child.on("exit", (code) => {
     if (code !== 0 && code !== null) console.log(`${name} stopped with code ${code}`);
   });
@@ -30,8 +20,8 @@ console.log("Frontend: http://127.0.0.1:5173");
 console.log("Backend:  http://127.0.0.1:3001");
 console.log("Press Ctrl+C to stop.\n");
 
-const backend = run("backend", "npm", ["run", "backend"]);
-const frontend = run("frontend", "npm", ["run", "frontend"]);
+const backend = run("backend", "node", ["server.js"], backendDir);
+const frontend = run("frontend", "npx", ["vite", "--host", "127.0.0.1"], frontendDir);
 
 process.on("SIGINT", () => {
   backend.kill();

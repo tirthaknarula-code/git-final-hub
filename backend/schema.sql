@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS orders (
   status VARCHAR(80) NOT NULL DEFAULT 'pending-payment',
   razorpay_order_id VARCHAR(140),
   razorpay_payment_id VARCHAR(140),
+  customer_name VARCHAR(120),
+  phone VARCHAR(40),
+  address TEXT,
+  city VARCHAR(80),
+  pincode VARCHAR(20),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

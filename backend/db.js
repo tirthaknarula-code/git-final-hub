@@ -185,9 +185,20 @@ async function createTables() {
       status VARCHAR(80) NOT NULL DEFAULT 'pending-payment',
       razorpay_order_id VARCHAR(140),
       razorpay_payment_id VARCHAR(140),
+      customer_name VARCHAR(120),
+      phone VARCHAR(40),
+      address TEXT,
+      city VARCHAR(80),
+      pincode VARCHAR(20),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  await addColumnIfMissing("orders", "customer_name", "VARCHAR(120)");
+  await addColumnIfMissing("orders", "phone", "VARCHAR(40)");
+  await addColumnIfMissing("orders", "address", "TEXT");
+  await addColumnIfMissing("orders", "city", "VARCHAR(80)");
+  await addColumnIfMissing("orders", "pincode", "VARCHAR(20)");
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS order_items (
@@ -201,11 +212,7 @@ async function createTables() {
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     )
   `);
-  try {
-    await db.query("ALTER TABLE products ADD COLUMN in_stock BOOLEAN NOT NULL DEFAULT TRUE");
-  } catch (error) {
-    if (error.code !== "ER_DUP_FIELDNAME") throw error;
-  }
+  await addColumnIfMissing("products", "in_stock", "BOOLEAN NOT NULL DEFAULT TRUE");
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS contact_messages (
