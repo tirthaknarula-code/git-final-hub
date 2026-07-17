@@ -102,6 +102,7 @@ const defaultProducts = [
 ];
 
 const allowedAdminEmails = ["tirthaknarula@gmail.com", "sanyamsharma261@gmail.com"];
+const money = (value) => Number(value || 0).toFixed(0);
 
 const offers = [
   {
@@ -217,7 +218,7 @@ function App() {
   );
 
   const total = useMemo(
-    () => cart.reduce((sum, item) => sum + item.price, 0),
+    () => cart.reduce((sum, item) => sum + Number(item.price || 0), 0),
     [cart],
   );
 
@@ -347,7 +348,7 @@ function App() {
     }
 
     const cartId = `${item.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setCart((items) => [...items, { ...item, cartId }]);
+    setCart((items) => [...items, { ...item, price: Number(item.price || 0), cartId }]);
     setMessage(note || `${item.title} added to cart`);
   };
 
@@ -360,7 +361,7 @@ function App() {
       id: offer.id,
       title: offer.title,
       brand: offer.brand,
-      price: offer.price,
+      price: Number(offer.price || 0),
       description: offer.description,
     };
     const freeItem = {
@@ -828,7 +829,7 @@ function App() {
                   <h3>{product.title}</h3>
                   <p>{product.description}</p>
                   <div className="price-row">
-                    <strong>Rs. {product.price}</strong>
+                    <strong>Rs. {money(product.price)}</strong>
                     <button
                       onClick={() => addCartItem(product)}
                       disabled={product.inStock === false || product.inStock === 0}
@@ -864,7 +865,7 @@ function App() {
                         <small>{item.brand}</small>
                       </div>
                       <strong>
-                        {item.price === 0 ? "Free" : `Rs. ${item.price}`}
+                        {item.price === 0 ? "Free" : `Rs. ${money(item.price)}`}
                       </strong>
                       <button
                         className="remove-btn"
@@ -905,7 +906,7 @@ function App() {
                 </form>
                 <div className="total-row">
                   <span>Total</span>
-                  <strong>Rs. {total}</strong>
+                  <strong>Rs. {money(total)}</strong>
                 </div>
                 {!user && (
                   <p className="checkout-note">
@@ -937,7 +938,7 @@ function App() {
                   <span>{offer.brand}</span>
                   <h3>{offer.title}</h3>
                   <p>{offer.description}</p>
-                  <strong>Rs. {offer.price}</strong>
+                  <strong>Rs. {money(offer.price)}</strong>
                   <small>Includes {offer.freeItem}</small>
                   <button onClick={() => addOffer(offer)}>Add Offer</button>
                 </article>
