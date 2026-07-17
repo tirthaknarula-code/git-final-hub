@@ -73,17 +73,17 @@ async function start() {
     await initDatabase();
     databaseReady = true;
     databaseError = "";
-    console.log(`MySQL database connected: ${dbName}`);
+    console.log(`[SERVER] MySQL database connected: ${dbName}`);
   } catch (error) {
     databaseReady = false;
     databaseError = error.message;
-    console.error("MySQL connect nahi hua:", error.message);
-    console.error("MySQL/XAMPP start karke backend terminal me Ctrl+C then npm run backend chalao.");
+    console.error("[SERVER] MySQL not connected:", error.message);
   }
 
   app.listen(port, () => {
-    console.log(`Backend API running on http://localhost:${port}`);
+    console.log(`[SERVER] Backend API running on http://localhost:${port}`);
   });
 }
 
 start();
+

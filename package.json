@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node dev-server.js",
     "backend": "npm --prefix backend start",
-    "frontend": "npm --prefix frontend run dev -- --host 127.0.0.1",
+    "frontend": "npm --prefix frontend run dev -- --host 127.0.0.1 --logLevel error",
     "build": "npm --prefix frontend run build",
     "dev": "node dev-server.js"
   }
 }
+
